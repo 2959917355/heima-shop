@@ -1,24 +1,55 @@
-<script setup lang="ts">
-import NewsInfo from '@/components/news-info/news-info.vue'
-
-//
-</script>
-
 <template>
   <view class="index">
-    <uni-card
-      title="基础卡片"
-      sub-title="副标题"
-      extra="额外信息"
-      thumbnail="https://qiniu-web-assets.dcloud.net.cn/unidoc/zh/unicloudlogo.png"
-    >
-      <text>这是一个带头像和双标题的基础卡片，此示例展示了一个完整的卡片。</text>
-    </uni-card>
-
-    <NewsInfo />
+    <!-- 自定义头部导航 -->
+    <view class="header">
+      <CustomNavbar />
+    </view>
+    <!-- 轮播图 -->
+    <view class="banner">
+      <XtxSwiper :list="bannerList" />
+    </view>
+    <!-- 首页分类 -->
+    <view class="category">
+      <CategoryPanel :list="bannerList" />
+    </view>
   </view>
 </template>
 
-<style lang="scss">
-//
+<script lang="ts" setup>
+import type { BannerItem } from '@/types/home'
+
+import CustomNavbar from '@/components/CustomNavbar.vue'
+import { getHomeBannerApi, getHomeCategoryApi } from '@/services/home'
+import { onLoad } from '@dcloudio/uni-app'
+import { ref } from 'vue'
+import CategoryPanel from '@/components/CategoryPanel.vue'
+const bannerList = ref<BannerItem[]>([]) // 轮播图数据
+//获取轮播图数据
+const getHomeBannerData = async () => {
+  const res = await getHomeBannerApi()
+  console.log('轮播图数据', res)
+  bannerList.value = res.result
+}
+//获取前台分类数据
+const getCategoryData = async () => {
+  const res = await getHomeCategoryApi()
+  console.log('前台分类数据', res)
+}
+//页面加载
+onLoad(() => {
+  getHomeBannerData()
+  getCategoryData()
+})
+</script>
+
+<style lang="scss" scoped>
+.index {
+  background: #f7f7f7;
+  .header {
+  }
+  .banner {
+  }
+  .category {
+  }
+}
 </style>

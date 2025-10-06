@@ -6,6 +6,6 @@
 import 'vue'
 declare module 'vue' {
   export interface GlobalComponents {
-    //
+    XtxSwiper: typeof import('@/components/swiper/index.vue')['default']
   }
 }

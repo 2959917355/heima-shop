@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
-const getDate = () => {
-  uni.request({
+import '@/utils/http'
+import { http } from '@/utils/http'
+const getData = async () => {
+  const res = await http<string[]>({
     method: 'GET',
-    url: '/home/banner',
+    url: '',
+    header: {},
   })
+  console.log('请求成功', res.result)
 }
 const memberStore = useMemberStore()
 </script>
@@ -16,6 +20,7 @@ const memberStore = useMemberStore()
       @tap="
         memberStore.setProfile({
           nickname: '黑马先锋',
+          token: '1112345',
         })
       "
       size="mini"
@@ -25,7 +30,7 @@ const memberStore = useMemberStore()
       保存用户信息
     </button>
     <button @tap="memberStore.clearProfile()" size="mini" plain type="warn">清理用户信息</button>
-    <button @tap="getDate" size="mini" type="primary">发送请求</button>
+    <button @tap="getData()" size="mini" type="primary">发送请求</button>
   </view>
 </template>
 
