@@ -25,7 +25,7 @@ const memberStore = useMemberStore()
       保存用户信息
     </button>
     <button @tap="memberStore.clearProfile()" size="mini" plain type="warn">清理用户信息</button>
-    <button @tap="getDate()" size="mini" type="primary">测试按钮</button>
+    <button @tap="getDate" size="mini" type="primary">发送请求</button>
   </view>
 </template>
 
