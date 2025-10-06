@@ -1,4 +1,4 @@
-import type { BannerItem } from '@/types/home'
+import type { BannerItem, CategoryItem } from '@/types/home'
 import { http } from '@/utils/http'
 
 /**
@@ -22,7 +22,7 @@ export const getHomeBannerApi = (distributionSite = 1) => {
  * @returns {Promise} 返回一个Promise对象，包含请求结果数据
  */
 export const getHomeCategoryApi = () => {
-  return http({
+  return http<CategoryItem[]>({
     method: 'GET',
     url: '/home/category/mutli',
   })
