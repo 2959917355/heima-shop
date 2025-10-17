@@ -93,5 +93,28 @@
         "selectedIconPath": "static/tabs/user_selected.png"
       }
     ]
+  },
+  "subPackages": [
+    {
+      "root": "pagesMember",
+      "pages": [
+        {
+          "path": "settings/settings",
+          "style": {
+            "navigationBarTitleText": "设置页面",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    }
+  ],
+  //分包下载规则
+  "preloadRule": {
+    "pages/my/my": {
+      "packages": [
+        "pagesMember"
+      ],
+      "network": "all"
+    }
   }
 }

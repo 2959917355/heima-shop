@@ -46,6 +46,7 @@ import { ref } from 'vue'
 import CategoryPanel from '@/components/CategoryPanel.vue'
 import HotPanel from '@/components/HotPanel.vue'
 import type { XtxGuessInstance } from '@/types/component'
+import { useGuessList } from '@/composables'
 
 //获取轮播图数据
 const bannerList = ref<BannerItem[]>([]) // 轮播图数据
@@ -72,11 +73,7 @@ const getHotData = async () => {
 }
 
 //滚动触底
-const guessRef = ref<XtxGuessInstance>()
-const onScrolltolower = () => {
-  console.log('触底了')
-  guessRef.value?.getMore()
-}
+const { guessRef, onScrolltolower } = useGuessList()
 //下拉刷新
 const isTriggered = ref(false)
 const onRefresh = async () => {
