@@ -30,11 +30,12 @@ export const useMemberStore = defineStore(
   {
     //网页端配置
     // #ifdef H5
-    // persist: true,
+    persist: true,
     // #endif
 
     // 微信小程序配置
     // #ifndef H5
+    // @ts-ignore
     persist: {
       storage: {
         getItem(key) {
