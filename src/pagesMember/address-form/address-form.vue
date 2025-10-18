@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { postMemberAddressApi } from '@/services/address'
 import { ref } from 'vue'
 
 // 表单数据
@@ -17,6 +18,34 @@ const query = defineProps<{
 }>()
 //动态设置页面标题
 uni.setNavigationBarTitle({ title: query.id ? '修改地址' : '新建地址' })
+
+//修改地址
+const onRegionChange: UniHelper.RegionPickerOnChange = (e) => {
+  //省市区(前端参数)
+  form.value.fullLocation = e.detail.value.join(' ')
+  //省市区(后端参数)
+  console.log('地区', e)
+  const [provinceCode, cityCode, countyCode] = e.detail.code!
+  Object.assign(form.value, { provinceCode, cityCode, countyCode })
+}
+
+//设置默认地址
+const onSwitchChange: UniHelper.SwitchOnChange = (e) => {
+  form.value.isDefault = e.detail.value ? 1 : 0
+}
+
+//提交表单
+const onSubmit = async () => {
+  const res = await postMemberAddressApi(form.value)
+  console.log('提交表单', res)
+  //失败
+  if (res.code !== '1') return uni.showToast({ title: res.msg, icon: 'error' })
+  //成功
+  uni.showToast({ title: '提交成功', icon: 'success' })
+  setTimeout(() => {
+    uni.navigateBack()
+  }, 1000)
+}
 </script>
 
 <template>
@@ -25,31 +54,42 @@ uni.setNavigationBarTitle({ title: query.id ? '修改地址' : '新建地址' })
       <!-- 表单内容 -->
       <view class="form-item">
         <text class="label">收货人</text>
-        <input class="input" placeholder="请填写收货人姓名" value="" />
+        <input class="input" placeholder="请填写收货人姓名" v-model="form.receiver" />
       </view>
       <view class="form-item">
         <text class="label">手机号码</text>
-        <input class="input" placeholder="请填写收货人手机号码" value="" />
+        <input class="input" placeholder="请填写收货人手机号码" v-model="form.contact" />
       </view>
       <view class="form-item">
         <text class="label">所在地区</text>
-        <picker class="picker" mode="region" value="">
-          <view v-if="false">广东省 广州市 天河区</view>
+        <picker
+          @change="onRegionChange"
+          class="picker"
+          mode="region"
+          :value="form.fullLocation.split(' ')"
+        >
+          <view v-if="form.fullLocation">{{ form.fullLocation }}</view>
           <view v-else class="placeholder">请选择省/市/区(县)</view>
         </picker>
       </view>
       <view class="form-item">
         <text class="label">详细地址</text>
-        <input class="input" placeholder="街道、楼牌号等信息" value="" />
+        <input class="input" placeholder="街道、楼牌号等信息" v-model="form.address" />
       </view>
       <view class="form-item">
         <label class="label">设为默认地址</label>
-        <switch class="switch" color="#27ba9b" :checked="true" />
+        <switch
+          @change="onSwitchChange"
+          class="switch"
+          color="#27ba9b"
+          :checked="form.isDefault === 1"
+        />
       </view>
     </form>
+    {{ form }}
   </view>
   <!-- 提交按钮 -->
-  <button class="button">保存并使用</button>
+  <button @tap="onSubmit" class="button">保存并使用</button>
 </template>
 
 <style lang="scss">
