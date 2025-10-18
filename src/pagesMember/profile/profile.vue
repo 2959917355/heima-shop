@@ -14,7 +14,7 @@ const profile = ref({} as ProfileDetail)
 const getMemberProfileData = async () => {
   const res = await getMemberProfileApi()
   console.log('个人信息数据', res)
-  profile.value = res.result
+  profile.value = res?.result
 }
 //页面加载时触发
 onLoad(() => {
@@ -86,11 +86,6 @@ const onFullLocationChange: UniHelper.RegionPickerOnChange = (e) => {
   fullLocationCode = e.detail.code!
 }
 
-//修改职业
-const onProfessionChange: UniHelper.Input = (e) => {
-  console.log(e)
-  profile.value.profession = e.detail.value
-}
 //提交表单
 const onSubmit = async () => {
   const { nickname, gender, birthday, profession } = profile.value
@@ -103,10 +98,12 @@ const onSubmit = async () => {
     cityCode: fullLocationCode[1],
     countyCode: fullLocationCode[2],
   })
-  console.log('更新头像昵称', res)
-  memberStore.profile!.nickname = profile.value?.nickname
-  uni.navigateBack()
-  uni.showToast({ title: '更新成功', icon: 'success' })
+  console.log('提交个人信息', res)
+  if (res?.code === '1') {
+    memberStore.profile!.nickname = profile.value?.nickname
+    uni.navigateBack()
+    uni.showToast({ title: '更新成功', icon: 'success' })
+  }
 }
 
 const memberStore = useMemberStore()
@@ -179,13 +176,7 @@ const memberStore = useMemberStore()
         </view>
         <view class="form-item">
           <text class="label">职业</text>
-          <input
-            class="input"
-            type="text"
-            placeholder="请填写职业"
-            :value="profile.profession"
-            @input="onProfessionChange"
-          />
+          <input class="input" type="text" placeholder="请填写职业" v-model="profile.profession" />
         </view>
       </view>
       <!-- 提交按钮 -->
