@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { postMemberAddressApi } from '@/services/address'
+import {
+  getMemberAddressDetailApi,
+  postMemberAddressApi,
+  putMemberAddressApi,
+} from '@/services/address'
+import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
 // 表单数据
@@ -16,6 +21,20 @@ const form = ref({
 const query = defineProps<{
   id?: string
 }>()
+
+//获取收获地址详情
+const getMemberAddressDetail = async () => {
+  if (!query.id) return
+  //发送请求
+  const res = await getMemberAddressDetailApi(query.id!)
+  console.log('获取地址详情', res)
+  //数据合并
+  Object.assign(form.value, res.result)
+}
+
+onLoad(() => {
+  getMemberAddressDetail()
+})
 //动态设置页面标题
 uni.setNavigationBarTitle({ title: query.id ? '修改地址' : '新建地址' })
 
@@ -36,12 +55,19 @@ const onSwitchChange: UniHelper.SwitchOnChange = (e) => {
 
 //提交表单
 const onSubmit = async () => {
-  const res = await postMemberAddressApi(form.value)
-  console.log('提交表单', res)
-  //失败
-  if (res.code !== '1') return uni.showToast({ title: res.msg, icon: 'error' })
+  if (query.id) {
+    //修改地址表单
+    console.log('修改地址表单', form.value)
+    // return
+    const res = await putMemberAddressApi(query.id, form.value)
+    console.log('修改地址表单', res.result)
+  } else {
+    //新建地址表单
+    const res = await postMemberAddressApi(form.value)
+    console.log('提交表单', res)
+  }
   //成功
-  uni.showToast({ title: '提交成功', icon: 'success' })
+  uni.showToast({ title: query.id ? '修改成功' : '提交成功', icon: 'success' })
   setTimeout(() => {
     uni.navigateBack()
   }, 1000)
