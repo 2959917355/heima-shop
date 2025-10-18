@@ -16,7 +16,6 @@ const getMemberProfileData = async () => {
   console.log('个人信息数据', res)
   profile.value = res.result
 }
-
 //页面加载时触发
 onLoad(() => {
   getMemberProfileData()
@@ -80,13 +79,29 @@ const onBirthdayChange: UniHelper.DatePickerOnChange = (e) => {
   profile.value.birthday = e.detail.value
   console.log(e.detail.value)
 }
+//修改城市
+let fullLocationCode: [string, string, string] = ['', '', '']
+const onFullLocationChange: UniHelper.RegionPickerOnChange = (e) => {
+  profile.value.fullLocation = e.detail.value.join(',')
+  fullLocationCode = e.detail.code!
+}
+
+//修改职业
+const onProfessionChange: UniHelper.Input = (e) => {
+  console.log(e)
+  profile.value.profession = e.detail.value
+}
 //提交表单
 const onSubmit = async () => {
-  const { nickname, gender, birthday } = profile.value
+  const { nickname, gender, birthday, profession } = profile.value
   const res = await putMemberProfileAPI({
     nickname,
     gender,
     birthday,
+    profession,
+    provinceCode: fullLocationCode[0],
+    cityCode: fullLocationCode[1],
+    countyCode: fullLocationCode[2],
   })
   console.log('更新头像昵称', res)
   memberStore.profile!.nickname = profile.value?.nickname
@@ -152,14 +167,25 @@ const memberStore = useMemberStore()
         </view>
         <view class="form-item">
           <text class="label">城市</text>
-          <picker class="picker" mode="region" :value="profile.fullLocation?.split(' ')">
+          <picker
+            @change="onFullLocationChange"
+            class="picker"
+            mode="region"
+            :value="profile.fullLocation?.split(', ') || ['北京市', '北京市', '东城区']"
+          >
             <view v-if="profile?.fullLocation">{{ profile?.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
         </view>
         <view class="form-item">
           <text class="label">职业</text>
-          <input class="input" type="text" placeholder="请填写职业" :value="profile?.profession" />
+          <input
+            class="input"
+            type="text"
+            placeholder="请填写职业"
+            :value="profile.profession"
+            @input="onProfessionChange"
+          />
         </view>
       </view>
       <!-- 提交按钮 -->
