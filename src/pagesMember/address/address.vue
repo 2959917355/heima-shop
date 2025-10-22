@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { getMemberAddressApi } from '@/services/address'
+import { deleteMemberAddressByIdAPI, getMemberAddressApi } from '@/services/address'
 import type { AddressItem } from '@/types/goods'
+import { routerTo, showToast } from '@/utils/common'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -10,6 +11,23 @@ const getMemberAddressData = async () => {
   const res = await getMemberAddressApi()
   console.log('用户收获地址列表', res)
   addressList.value = res.result
+}
+//删除地址
+const delAddress = (id: string) => {
+  uni.showModal({
+    title: '提示',
+    content: '确定要删除该地址吗？',
+    success: async (res) => {
+      if (res.confirm) {
+        // 删除地址
+        const res = await deleteMemberAddressByIdAPI(id)
+        console.log('删除地址', res)
+        if (res.code === '1') showToast({ title: '删除成功' })
+        // 更新地址列表
+        getMemberAddressData()
+      }
+    },
+  })
 }
 
 //页面显示时触发
@@ -22,28 +40,38 @@ onShow(() => {
   <view class="viewport">
     <!-- 地址列表 -->
     <scroll-view class="scroll-view" scroll-y>
-      <view v-if="true" class="address">
-        <view class="address-list">
+      <view v-if="addressList?.length" class="address">
+        <uni-swipe-action class="address-list">
           <!-- 收货地址项 -->
           <view class="item" v-for="item in addressList" :key="item.id">
             <view class="item-content">
-              <view class="user">
-                {{ item.receiver }}
-                <text class="contact">{{ item.contact }}</text>
-                <text v-if="item.isDefault" class="badge">默认</text>
+              <view class="left">
+                <view class="user">
+                  {{ item.receiver }}
+                  <text class="contact">{{ item.contact }}</text>
+                  <text v-if="item.isDefault" class="badge">默认</text>
+                </view>
+                <view class="locate">{{ item.fullLocation }} {{ item.address }}</view>
               </view>
-              <view class="locate">{{ item.fullLocation }} {{ item.address }}</view>
-              <navigator
-                class="edit"
-                hover-class="none"
-                :url="`/pagesMember/address-form/address-form?id=${item.id}`"
-              >
-                修改
-              </navigator>
+              <view class="right">
+                <button
+                  type="warn"
+                  size="mini"
+                  class="edit"
+                  @click="routerTo(`/pagesMember/address-form/address-form?id=${item.id}`)"
+                >
+                  修改
+                </button>
+                <!-- 右侧按钮 -->
+                <button @tap="delAddress(item.id)" class="btn" type="primary" size="mini">
+                  删除
+                </button>
+              </view>
             </view>
           </view>
+
           <!-- 收货地址项 -->
-        </view>
+        </uni-swipe-action>
       </view>
       <view v-else class="blank">暂无收货地址</view>
     </scroll-view>
@@ -94,27 +122,33 @@ page {
   background-color: #fff;
 
   .item-content {
-    line-height: 1;
-    padding: 40rpx 10rpx 38rpx;
-    border-bottom: 1rpx solid #ddd;
-    position: relative;
+    width: 100%;
+    display: flex;
+    // 主要内容
+    .left {
+      width: 80%;
+      flex-shrink: 0;
+      padding: 40rpx 10rpx 38rpx;
+      border-bottom: 1rpx solid #ddd;
+    }
 
-    .edit {
-      position: absolute;
-      top: 36rpx;
-      right: 30rpx;
-      padding: 2rpx 0 2rpx 20rpx;
-      border-left: 1rpx solid #666;
-      font-size: 26rpx;
-      color: #666;
-      line-height: 1;
+    //操作按钮
+    .right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10rpx;
+      text-align: center;
+      border-bottom: 1rpx solid #ddd;
     }
   }
-
-  .item:last-child .item-content {
-    border: none;
+  .address-list {
+    .item:last-child .left,
+    .item:last-child .right {
+      border-bottom: none;
+    }
   }
-
   .user {
     font-size: 28rpx;
     margin-bottom: 20rpx;
