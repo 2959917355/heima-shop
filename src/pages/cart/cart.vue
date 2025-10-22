@@ -14,7 +14,8 @@
       @close="onCloseSkuPopup"
       @add-cart="addCart"
       @buy-now="buyNow"
-    ></vk-data-goods-sku-popup>
+    >
+    </vk-data-goods-sku-popup>
   </view>
 </template>
 
